@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>List</title>
+    <style>
+        body {
+            font-family: Courier;
+        }
+        html {
+            box-sizing: border-box;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        #List {
+            max-width: 320px;
+            margin: 0 auto;
+            padding: 0;
+        }
+        .Item {
+            list-style: none;
+            position: relative;
+            padding-left: 50px;
+            line-height: 50px;
+            cursor: pointer;
+        }
+        .Item:hover {
+            background-color: #F7F7F7;
+        }
+        .Item:before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            height: 20px;
+            width: 20px;
+            border-radius: 3px;
+            border: 2px solid #e5e5e5;
+        }
+        .Item.done:after {
+            content: '';
+            position: absolute;
+            border-bottom: 2px solid #32CA67;
+            border-left: 2px solid #32CA67;
+            width: 10px;
+            height: 6px;
+            top: 21px;
+            left: 20px;
+            transform: rotate(-45deg);
+        }
+        #AddButton {
+            height: 50px;
+            width: 50px;
+            margin: 20px auto;
+            border: 2px dashed #e5e5e5;
+            border-radius: 25px;
+            line-height: 46px;
+            text-align: center;
+            font-size: 30px;
+            font-weight: 900;
+            color: #32CA67;
+        }
+    </style>
+</head>
+<body>
+    <div id='AddButton'>+</div>
+    <ul id='List'></ul>
+    <script src='app.js'></script>
+</body>
+</html>
