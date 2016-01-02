@@ -1,29 +1,46 @@
 var app  = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-var lists = {};
+var redis = require('redis');
+var redisClient = redis.createClient();
 
 io.on('connection', function(socket) {
+    console.log('A User Connected');
 
-    socket.on('create-list', function(data) {
-        console.log('Created list: ' + data.name);
-        socket.join(data.name);
+    socket.on('subscribe', function(list) {
+        console.log('Subscribed to ' + list);
+        socket.join(list);
+        redisClient.exists(list, function(err, exists) {
+            if (exists === 1) {
+                redisClient.get(list, function(err, value) {
+                    socket.emit('subscribed', JSON.parse(value));
+                });
+            } else {
+                var emptyList = [{ text: 'Check this', done: false }];
+                redisClient.set(list, JSON.stringify(emptyList), function(err, reply) {
+                    socket.emit('subscribed', emptyList);
+                });
+            }
+        });
     });
 
-    socket.on('subscribe', function(listName) {
-        console.log('Subscribed to: ' + listName);
-        socket.join(listName);
-        io.sockets.in(listName).emit('subscribed');
+    socket.on('add item', function(item) {
+        redisClient.get(item[0], function(err, value) {
+            var list = JSON.parse(value);
+            list.push(item[1]);
+            io.sockets.in(item[0]).emit('updated list', list);
+            redisClient.set(item[0], JSON.stringify(list));
+        });
     });
 
-    socket.on('update-list', function(data) {
-
+    socket.on('toggle item', function(item) {
+        redisClient.get(item[0], function(err, value) {
+            var list = JSON.parse(value);
+            list[item[1]].done = !list[item[1]].done;
+            io.sockets.in(item[0]).emit('updated list', list);
+            redisClient.set(item[0], JSON.stringify(list));
+        });
     });
-
-    /*
-    socket.on('update-list', function(data) {
-        io.sockets.in(data.name).emit()
-    });*/
 });
 
 app.get('/', function(req, res) {

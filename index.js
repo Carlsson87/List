@@ -1,38 +1,25 @@
 var io = require('socket.io-client');
-var socket = io('http://localhost:3000');
+var socket = io('http://list.app');
 var $list = document.getElementById('List');
 var $addBtn = document.getElementById('AddButton');
 
-function uid() {
-    var text = 'abcdefghijklmnopqrstuvwxzy1234567890';
-    var id = '';
-    for (var i = 0; i < 5; i++) {
-        id += text[Math.floor(Math.random() * text.length)];
-    }
-    return id;
-}
-
-var LIST = {
-    empty: true
-};
-
-var LIST_NAME = null;
-
 if (location.hash) {
     var listName = location.hash.slice(1);
-    socket.emit('subscribe', listName);
-    LIST_NAME = listName;
 }
 
 // When connected, subscribe to the correct list.
 socket.on('connect', function() {
     console.log('Connected');
-    socket.on('update-list', function(data) {
-        console.log('Update list', data);
+
+    socket.emit('subscribe', listName);
+    socket.on('subscribed', function(value) {
+        console.log('Subscribed');
+        render(value);
     });
 
-    socket.on('subscribed', function() {
-        socket.emit('update-list', LIST);
+    socket.on('updated list', function(value) {
+        console.log('updated', value);
+        render(value);
     });
 });
 
@@ -41,40 +28,30 @@ $addBtn.addEventListener('click', function() {
     var string = prompt('What');
     var item = {
         text: string,
-        done: false,
-        dirty: true,
-        node: null
+        done: false
     };
-    LIST[Date.now()] = item;
-
-    if (LIST_NAME === null && LIST.empty) {
-        LIST_NAME = uid();
-        socket.emit('create-list', { name: LIST_NAME, data: LIST });
-        console.log('Created list: ' + LIST_NAME);
-        LIST.empty = false;
-    } else {
-        socket.emit('update-list', { name: LIST_NAME, data: LIST });
-    }
-
-    render();
+    socket.emit('add item', [listName, item]);
 });
 
-function render() {
-    console.log('Rendering', LIST);
-
-    for (var key in LIST) {
-        if (key === 'empty' || !LIST[key].dirty) continue;
-
-        if (LIST[key].node === null) {
-            LIST[key].node = makeLi(LIST[key].text);
-            $list.appendChild(LIST[key].node);
-        }
-    }
+var currentList = null;
+function render(list) {
+    currentList = list;
+    $list.innerHTML = '';
+    console.log(list);
+    list.forEach(function(item, index) {
+        $list.appendChild(makeLi(item, index));
+    });
 }
 
-function makeLi(text) {
+function makeLi(item, index) {
     var li = document.createElement('li');
     li.classList.add('Item');
-    li.innerText = text;
+    if (item.done) {
+        li.classList.add('done');
+    }
+    li.innerText = item.text;
+    li.addEventListener('click', function() {
+        socket.emit('toggle item', [listName, index]);
+    });
     return li;
 }
