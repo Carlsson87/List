@@ -102,6 +102,10 @@
 	    return li;
 	}
 
+	window.emptyList = function() {
+	    socket.emit('empty list', listName);
+	};
+
 /***/ },
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {

@@ -55,3 +55,7 @@ function makeLi(item, index) {
     });
     return li;
 }
+
+window.emptyList = function() {
+    socket.emit('empty list', listName);
+};

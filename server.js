@@ -41,6 +41,12 @@ io.on('connection', function(socket) {
             redisClient.set(item[0], JSON.stringify(list));
         });
     });
+
+    socket.on('empty list', function(list) {
+        redisClient.set(list, "[]", function(err, value) {
+            io.sockets.in(list).emit('updated list', []);
+        });
+    });
 });
 
 app.get('/', function(req, res) {
