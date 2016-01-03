@@ -45,7 +45,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var io = __webpack_require__(1);
-	var socket = io('http://list.app');
+	var socket = io();
 	var $list = document.getElementById('List');
 	var $addBtn = document.getElementById('AddButton');
 

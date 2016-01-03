@@ -1,5 +1,5 @@
 var io = require('socket.io-client');
-var socket = io('http://list.app');
+var socket = io();
 var $list = document.getElementById('List');
 var $addBtn = document.getElementById('AddButton');
 
